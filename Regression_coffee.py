@@ -1,7 +1,7 @@
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
-from sklearn.preprocessing import LabelEncoder, PolynomialFeatures
+from sklearn.preprocessing import PolynomialFeatures
 from sklearn.model_selection import train_test_split
 from sklearn.pipeline import make_pipeline
 
@@ -11,16 +11,14 @@ from sklearn.metrics import mean_squared_error, mean_absolute_error
 from sklearn.svm import SVR
 from sklearn.tree import DecisionTreeRegressor
 
-data_file = "Coffe_sales.csv"
 
+def load_and_preprocess(data_file):
+    df = pd.read_csv(data_file)
 
-import pandas as pd
-from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import LabelEncoder
-
-
-def load_and_preprocess(filepath):
-    df = pd.read_csv(filepath)
+    df.head()
+    df.info()
+    df.describe()
+    df.isnull().sum()
 
     # Ici on a choisi de mettre une liste des colomnes qu'on va récupérer dans le csv (la money est récupéré d'une autre façno.
     features = [
@@ -58,17 +56,20 @@ def evaluate_model(name, model, X_train, y_train, X_test, y_test, results):
 
     results[name] = {"RMSE": rmse, "MSE": mse, "MAE": mae}
 
-    print(f"{name:22} | RMSE: {rmse:8.2f} | MAE: {mae:8.2f}")
+    print(f"\n{name} Performance:")
+    print(f"  RMSE: {rmse:.2f}")
+    print(f"  MSE : {mse:.2f}")
+    print(f"  MAE : {mae:.2f}")
 
 
 def plot_metrics(results):
-    metrics = ["RMSE", "MAE"]
-    fig, axes = plt.subplots(1, len(metrics), figsize=(15, 5))
+    metrics = ["RMSE", "MSE", "MAE"]
+    fig, axes = plt.subplots(1, len(metrics), figsize=(20, 5))
 
     for idx, metric in enumerate(metrics):
         scores = [results[model][metric] for model in results]
-        axes[idx].bar(results.keys(), scores, color="teal")
-        axes[idx].set_title(f"Model Comparison: {metric}")
+        axes[idx].bar(results.keys(), scores, color="skyblue")
+        axes[idx].set_title(metric)
         axes[idx].tick_params(axis="x", rotation=45)
         axes[idx].set_ylabel(metric)
 
@@ -84,11 +85,14 @@ class MeanPredictor:
         return np.full(shape=(len(X),), fill_value=self.mean_)
 
 
-def run():
+def run(data_file):
     X_train, X_test, y_train, y_test = load_and_preprocess(data_file)
     results = {}
 
     models = {
+        "Random Forest": RandomForestRegressor(
+            n_estimators=100, random_state=1, n_jobs=-1
+        ),
         "Baseline (Mean)": MeanPredictor(),
         "Linear Regression": LinearRegression(),
         "Decision Tree": DecisionTreeRegressor(random_state=0),
@@ -106,4 +110,5 @@ def run():
     plot_metrics(results)
 
 
-run()
+coffee_data_file = "Coffe_sales.csv"
+run(coffee_data_file)
