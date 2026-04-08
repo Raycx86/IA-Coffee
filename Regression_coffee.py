@@ -22,9 +22,8 @@ def load_and_preprocess(data_file):
 
     # Ici on a choisi de mettre une liste des colomnes qu'on va récupérer dans le csv (la money est récupéré d'une autre façno.
     features = [
-        "hour_of_day",
-        "coffee_name",
-        "Time_of_Day",
+        # "coffee_name",
+        "Time_of_Day", # On préfère regrouper les heures de la journée par groupe (matin, midi, après-midi par exemple)
         "Weekdaysort",
         "Monthsort",
     ]
