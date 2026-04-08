@@ -18,9 +18,11 @@ import pandas as pd
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import LabelEncoder
 
+
 def load_and_preprocess(filepath):
     df = pd.read_csv(filepath)
 
+    # Ici on a choisi de mettre une liste des colomnes qu'on va récupérer dans le csv (la money est récupéré d'une autre façno.
     features = [
         "hour_of_day",
         "coffee_name",
@@ -29,16 +31,22 @@ def load_and_preprocess(filepath):
         "Monthsort",
     ]
 
+    # On choisi de mettre les features sur l'axe X et l'argent sur l'axe Y car on veut avoir des info lié à l'argent (prix de x, tendance de prix, etc...)
     X = df[features]
     y = df["money"]
 
+    # On encore les colomne qui on du texte ou des valeurs non int car l'ia n'accepte que des int
     X_encoded = pd.get_dummies(
         X, columns=["coffee_name", "Time_of_Day"], drop_first=True, dtype=int
     )
 
+    # On utilise donc cette variable pour ne garder que les int.
     X_encoded = X_encoded.select_dtypes(include=[np.number])
 
+    # test_size : Pourcentage (ici 20%) du split de la base de donnée, on utilisera 20% pour tester l'IA et le reste pour l'entrainer.
+    # Random_state=42 est la seed qui permet de faire toujours de la même façon quand on l'execute
     return train_test_split(X_encoded, y, test_size=0.2, random_state=42)
+
 
 def evaluate_model(name, model, X_train, y_train, X_test, y_test, results):
     model.fit(X_train, y_train)
