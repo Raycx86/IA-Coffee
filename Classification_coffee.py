@@ -6,35 +6,27 @@ from sklearn.model_selection import train_test_split
 
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.dummy import DummyClassifier
+from sklearn.svm import SVC
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.neighbors import KNeighborsClassifier
 
 from sklearn.metrics import accuracy_score, classification_report, confusion_matrix
 
 def load_data(data_file):
     df = pd.read_csv(data_file)
-    print("\nFirst lines of the dataset:")
+
     print(df.head())
-    print("\nDataset info:")
     print(df.info())
-    print("\nStatistical summary:")
     print(df.describe())
-    print("\nMissing values per column:")
     print(df.isnull().sum())
     return df
 
 
 def preprocess_data(df):
-    X = df[
-        [
-            "satisfaction_level",
-            "last_evaluation",
-            "number_project",
-            "average_montly_hours",
-            "time_spend_company",
-            "Work_accident",
-            "promotion_last_5years",
-        ]
-    ]
-    y = df["left"]
+    X = df[["money", "Time_of_Day", "Weekdaysort", "Monthsort"]]
+    y = df["coffee_name"]
+
+    X = pd.get_dummies(X, columns=["Time_of_Day"], drop_first=True, dtype=int)
     return X, y
 
 
@@ -72,8 +64,8 @@ def plot_accuracy_bar(results):
     plt.grid(axis="y")
     plt.show()
 
-def run():
-    df = load_data("Resources/HR_dataset.csv")
+def run(data_file):
+    df = load_data(data_file)
     X, y = preprocess_data(df)
     X_train, X_test, y_train, y_test = train_test_split(
         X, y, test_size=0.3, random_state=0
@@ -82,7 +74,9 @@ def run():
     models = [
         ("Random Forest", RandomForestClassifier(random_state=0)),
         ("Baseline (Most Frequent)", DummyClassifier(strategy="most_frequent")),
-        # TODO: Add more models
+        ("Decision Tree", DecisionTreeClassifier(random_state=0)),
+        ("SVM", SVC(kernel="rbf", probability=True, random_state=0)),
+        ("KNN", KNeighborsClassifier(n_neighbors=5)),
     ]
 
     results = []

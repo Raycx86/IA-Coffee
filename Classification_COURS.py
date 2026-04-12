@@ -32,20 +32,23 @@ Data used:
 
 # --- Imports ---
 import pandas as pd
+import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
 
 from sklearn.model_selection import train_test_split
 
 from sklearn.ensemble import RandomForestClassifier
+from sklearn.linear_model import LogisticRegression
+from sklearn.tree import DecisionTreeClassifier
 from sklearn.dummy import DummyClassifier
+from sklearn.svm import SVC
 
 from sklearn.metrics import accuracy_score, classification_report, confusion_matrix
 
 # ----------------------------
 # Function Definitions
 # ----------------------------
-
 
 def load_data(path):
     """Load and inspect the dataset."""
@@ -60,22 +63,20 @@ def load_data(path):
     print(df.isnull().sum())
     return df
 
-
 def preprocess_data(df):
     """Extract features and labels from the dataset."""
-    X = df[
-        [
-            "satisfaction_level",
-            "last_evaluation",
-            "number_project",
-            "average_montly_hours",
-            "time_spend_company",
-            "Work_accident",
-            "promotion_last_5years",
-        ]
-    ]
-    y = df["left"]
+    X = df[[
+        'satisfaction_level',
+        'last_evaluation',
+        'number_project',
+        'average_montly_hours',
+        'time_spend_company',
+        'Work_accident',
+        'promotion_last_5years'
+    ]]
+    y = df['left']
     return X, y
+
 
 
 def train_and_evaluate_model(name, model, X_train, X_test, y_train, y_test):
@@ -96,17 +97,17 @@ def train_and_evaluate_model(name, model, X_train, X_test, y_train, y_test):
     return name, acc, confusion_matrix(y_test, y_pred)
 
 
+
 def plot_confusion_matrices(results):
     """Plot confusion matrices of all models."""
-    fig, axes = plt.subplots(1, len(results), figsize=(5 * len(results), 4))
+    fig, axes = plt.subplots(1, len(results), figsize=(5*len(results), 4))
     for ax, (name, _, cm) in zip(axes, results):
-        sns.heatmap(cm, annot=True, fmt="d", cmap="Blues", ax=ax)
+        sns.heatmap(cm, annot=True, fmt='d', cmap='Blues', ax=ax)
         ax.set_title(name)
-        ax.set_xlabel("Predicted")
-        ax.set_ylabel("Actual")
+        ax.set_xlabel('Predicted')
+        ax.set_ylabel('Actual')
     plt.tight_layout()
     plt.show()
-
 
 def plot_accuracy_bar(results):
     """Bar plot of model accuracies."""
@@ -118,21 +119,19 @@ def plot_accuracy_bar(results):
     plt.ylabel("Accuracy")
     plt.ylim(0, 1)
     plt.xticks(rotation=45)
-    plt.grid(axis="y")
+    plt.grid(axis='y')
     plt.show()
+
 
 
 # ----------------------------
 # Main Execution
 # ----------------------------
 
-
 def run():
-    df = load_data("Resources/HR_dataset.csv")
+    df = load_data('Resources/HR_dataset.csv')
     X, y = preprocess_data(df)
-    X_train, X_test, y_train, y_test = train_test_split(
-        X, y, test_size=0.3, random_state=0
-    )
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=0)
 
     # Define models
     """ ..TODO:  
@@ -142,17 +141,14 @@ def run():
     """
     models = [
         ("Random Forest", RandomForestClassifier(random_state=0)),
-        ("Baseline (Most Frequent)", DummyClassifier(strategy="most_frequent")),
+        ("Baseline (Most Frequent)", DummyClassifier(strategy='most_frequent'))
     ]
 
     results = []
     for name, model in models:
-        results.append(
-            train_and_evaluate_model(name, model, X_train, X_test, y_train, y_test)
-        )
+        results.append(train_and_evaluate_model(name, model, X_train, X_test, y_train, y_test))
 
     plot_confusion_matrices(results)
     plot_accuracy_bar(results)
-
 
 run()
