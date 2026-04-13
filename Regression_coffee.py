@@ -30,7 +30,7 @@ def load_data(data_file):
 
 
 def preprocess_data(df):
-    # Ici on a choisi de mettre une liste des colomnes qu'on va récupérer dans le csv (la money est récupéré d'une autre façno.
+    # Ici on a choisi de mettre une liste des colomnes qu'on va utiliser pour éstimer le prix.
     features = [
         "coffee_name",
         "hour_of_day",
