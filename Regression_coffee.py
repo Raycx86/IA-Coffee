@@ -33,7 +33,6 @@ def preprocess_data(df):
     # Ici on a choisi de mettre une liste des colomnes qu'on va récupérer dans le csv (la money est récupéré d'une autre façno.
     features = [
         "coffee_name",
-        # "Time_of_Day",  # On préfère regrouper les heures de la journée par groupe (matin, midi, après-midi par exemple)
         "hour_of_day",
         "Weekdaysort",
         "Monthsort",
@@ -120,7 +119,8 @@ def run(data_file):
 
     # Capture the best version of the model
     best_gb_model = grid_search.best_estimator_
-    models = { # Je les ai plus ou moin trié dans l'ordre de performance attendu
+    models = {  # Je les ai plus ou moin trié dans l'ordre de performance attendu
+        "Baseline (Mean)": MeanPredictor(),
         "Linear Regression": Pipeline(
             [("scaler", StandardScaler()), ("lr", LinearRegression())]
         ),
@@ -136,12 +136,12 @@ def run(data_file):
         ),
         "Gradient Boosting": best_gb_model,
         "XGBoost": XGBRegressor(
-            n_estimators=500,
+            n_estimators=100,  # Réduit de 500 à 100 car était overfit
             learning_rate=0.05,
-            max_depth=10,
-            n_jobs=-1,  # Toute la patate de mon cpu ouiii
+            max_depth=5,  # Réduit de 10 à 5 car était overfit
+            n_jobs=-1,
             random_state=1,
-            tree_method="hist",  # Méthode ultra-rapide pour CPU (équivalent à HistGradientBoosting)
+            tree_method="hist",
         ),
     }
 
