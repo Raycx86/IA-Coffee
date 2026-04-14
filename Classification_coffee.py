@@ -41,16 +41,21 @@ def preprocess_data(df):
     label_encoder = LabelEncoder()
     y_encoded = label_encoder.fit_transform(y)
 
-    return train_test_split(
-        X_encoded,
-        y_encoded,
-        test_size=0.2,
-        random_state=0,
-        stratify=y_encoded,
-    ), label_encoder
+    return (
+        train_test_split(
+            X_encoded,
+            y_encoded,
+            test_size=0.2,
+            random_state=0,
+            stratify=y_encoded,
+        ),
+        label_encoder,
+    )
 
 
-def train_and_evaluate_model(name, model, X_train, X_test, y_train, y_test, label_encoder):
+def train_and_evaluate_model(
+    name, model, X_train, X_test, y_train, y_test, label_encoder
+):
     model.fit(X_train, y_train)
 
     y_pred = model.predict(X_test)
@@ -76,7 +81,7 @@ def plot_accuracy_bar(results):
     plt.ylabel("Accuracy")
     plt.ylim(0, 1)
     plt.xticks(rotation=45)
-    plt.grid(axis='y')
+    plt.grid(axis="y")
     plt.show()
 
 
@@ -121,22 +126,31 @@ def run(data_file):
     best_gb_model = grid_search.best_estimator_
 
     models = [
-        ("Baseline", DummyClassifier(strategy="most_frequent")),
+        ("Baseline", DummyClassifier(
+            strategy="most_frequent"
+        )
+         ),
         ("Decision Tree", DecisionTreeClassifier(random_state=0)),
-        ("Random Forest", RandomForestClassifier(
-            n_estimators=200,
-            max_depth=10,
-            min_samples_split=5,
-            random_state=1,
-            n_jobs=-1,
-        )),
+        (
+            "Random Forest",
+            RandomForestClassifier(
+                n_estimators=200,
+                max_depth=10,
+                min_samples_split=5,
+                random_state=1,
+                n_jobs=-1,
+            ),
+        ),
         ("Gradient Boosting", best_gb_model),
-        ("XGBoost", XGBClassifier(
-            eval_metric="mlogloss",
-            objective="multi:softprob",
-            num_class=len(label_encoder.classes_),
-            random_state=0,
-        )),
+        (
+            "XGBoost",
+            XGBClassifier(
+                eval_metric="mlogloss",
+                objective="multi:softprob",
+                num_class=len(label_encoder.classes_),
+                random_state=0,
+            ),
+        ),
         ("Naive Bayes", GaussianNB()),
     ]
 
