@@ -1,4 +1,7 @@
-# IA-Coffee
+# IA-Coffee ☕
+
+![Wakapi](http://wakapi.sandwich-of-rayc.space/api/badge/Rayc/interval:any/project:IA_coffee)
+
 ## Mettre le sujet
 ## Scénario :
 ### Sceneario Regression
