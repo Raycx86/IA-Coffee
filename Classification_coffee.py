@@ -131,8 +131,7 @@ def run(data_file):
         )
          ),
         ("Decision Tree", DecisionTreeClassifier(random_state=0)),
-        (
-            "Random Forest",
+        ("Random Forest",
             RandomForestClassifier(
                 n_estimators=200,
                 max_depth=10,
@@ -142,8 +141,7 @@ def run(data_file):
             ),
         ),
         ("Gradient Boosting", best_gb_model),
-        (
-            "XGBoost",
+        ("XGBoost",
             XGBClassifier(
                 eval_metric="mlogloss",
                 objective="multi:softprob",

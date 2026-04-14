@@ -33,15 +33,12 @@ def preprocess_data(df):
     # Ici on a choisi de mettre une liste des colomnes qu'on va utiliser pour éstimer le prix.
     features = [
         "coffee_name",
-        "hour_of_day",
-        "Weekdaysort",
         "Monthsort",
     ]
 
     X = df[features]
     y = df["money"]
 
-    # On encore les colomne qui on du texte ou des valeurs non int car l'ia n'accepte que des int
     X_encoded = pd.get_dummies(  # get_dummies est meilleur que LabelEncoder car Label Encoder risque de mettre une importance (Nuit > jour par exemple)
         X, columns=["coffee_name"], drop_first=True, dtype=int
     )
@@ -50,8 +47,8 @@ def preprocess_data(df):
     X_encoded = X_encoded.select_dtypes(include=[np.number])
 
     # test_size : Pourcentage (ici 20%) du split de la base de donnée, on utilisera 20% pour tester l'IA et le reste pour l'entrainer.
-    # Random_state=0 est la seed qui permet de faire toujours de la même façon quand on l'execute
-    return train_test_split(X_encoded, y, test_size=0.2, random_state=0)
+    # Random_state=42 est la seed qui permet de faire toujours de la même façon quand on l'execute
+    return train_test_split(X_encoded, y, test_size=0.2, random_state=42)
 
 
 def evaluate_model(name, model, X_train, y_train, X_test, y_test, results):
@@ -92,7 +89,7 @@ class MeanPredictor:
     def predict(self, X):
         return np.full(shape=(len(X),), fill_value=self.mean_)
 
-
+                            
 def run(data_file):
     df = load_data(data_file)
     X_train, X_test, y_train, y_test = preprocess_data(df)
@@ -102,23 +99,18 @@ def run(data_file):
         "learning_rate": [0.01, 0.05, 0.1],  # Vitesse à laquelle le modèle apprend
         "max_iter": [100, 500],  # Nombre d'arbres max
         "max_depth": [5, 10, 15],  # Profondeur max des arbres
-        "l2_regularization": [
-            0,
-            0.1,
-            1.0,
-        ],  # Une limite pour ne pas rendre le modèle trop complexex²
+        "l2_regularization": [ 0, 0.1, 1.0],  # Une limite pour ne pas rendre le modèle trop complexex²
     }
     grid_search = GridSearchCV(
-        HistGradientBoostingRegressor(random_state=1, early_stopping=True),
+        HistGradientBoostingRegressor(random_state=42, early_stopping=True),
         gb_param_grid,  # On donne au modèle donner juste avant les données du dataset
         cv=3,  # Meme chause de test size, on divise les données en 3, il s'entraine sur 2 et teste sur la dernière.
         scoring="neg_mean_squared_error",  # On l'entraine en utilisant le MSE pour noter
         n_jobs=-1,  # TOUTE LA PUISSANCE OUI OUI OUI
     )
     grid_search.fit(X_train, y_train)
-
-    # Capture the best version of the model
     best_gb_model = grid_search.best_estimator_
+
     models = {  # Je les ai plus ou moin trié dans l'ordre de performance attendu
         "Baseline (Mean)": MeanPredictor(),
         "Linear Regression": Pipeline(
@@ -128,10 +120,10 @@ def run(data_file):
             [("scaler", StandardScaler()), ("svr", SVR(C=1.0, epsilon=0.2))]
         ),
         "Random Forest": RandomForestRegressor(
-            n_estimators=200,
-            max_depth=10,
-            min_samples_split=5,
-            random_state=1,
+            n_estimators=200, # Nombre d'arbres dans la foret
+            max_depth=10, # Profondeur max des arbres
+            min_samples_split=5, # Nombre minimum d'exemples
+            random_state=42,
             n_jobs=-1,
         ),
         "Gradient Boosting": best_gb_model,
@@ -140,8 +132,8 @@ def run(data_file):
             learning_rate=0.05,
             max_depth=5,  # Réduit de 10 à 5 car était overfit
             n_jobs=-1,
-            random_state=1,
-            tree_method="hist",
+            random_state=42,
+            tree_method="hist", # A revoir : https://xgboost.readthedocs.io/en/stable/treemethod.html
         ),
     }
 
